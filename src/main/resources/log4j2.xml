@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="ERROR" monitorInterval="1800">
+    <properties>
+        <property name="LOG_HOME">logs</property>
+        <property name="FILE_NAME">mylog</property>
+    </properties>
+    <appenders>
+        <Console name="consolePrint" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss} [%t] %-5level %logger{36} - %msg%n" />
+        </Console>
+        <RollingFile name="RollingFile"
+                     filePattern="$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz">
+            <PatternLayout pattern="[%-5p] %d %c - %m%n" />
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="25 KB" />
+            </Policies>
+            <DefaultRolloverStrategy max="20"/>
+        </RollingFile>
+    </appenders>
+
+    <loggers>
+        <!--<Logger name="com.jy.webchat.dao" level="TRACE" additivity="false">
+            <AppenderRef ref="consolePrint"/>
+        </Logger>-->
+        <root level="ERROR">
+            <appender-ref ref="consolePrint" />
+        </root>
+    </loggers>
+</Configuration>

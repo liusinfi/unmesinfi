@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jy.webchat.dao.ChatRoomsMapper" >
+  <resultMap id="BaseResultMap" type="com.jy.webchat.pojo.ChatRooms" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="roomType" property="roomtype" jdbcType="INTEGER" />
+    <result column="createDate" property="createdate" jdbcType="TIMESTAMP" />
+    <result column="roomMember" property="roommember" jdbcType="INTEGER" />
+    <result column="lastTime" property="lasttime" jdbcType="VARCHAR" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.jy.webchat.pojo.ChatRoomsWithBLOBs" extends="BaseResultMap" >
+    <result column="roomContent" property="roomcontent" jdbcType="LONGVARCHAR" />
+    <result column="roomTitle" property="roomtitle" jdbcType="LONGVARCHAR" />
+    <result column="roomNotice" property="roomnotice" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <select id="selectAll" resultMap="ResultMapWithBLOBs">
+    SELECT
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from chatrooms
+    LIMIT #{offset}, #{limit}
+  </select>
+  <select id="selectUserVisited" resultMap="ResultMapWithBLOBs">
+    SELECT
+    ch.id, ch.roomType, rm.createDate, ch.roomMember, ch.lastTime,ch.password,ch.roomContent, ch.roomTitle,ch.roomNotice
+    from chatrooms  ch JOIN roommember rm on ch.id = rm.roomid and rm.userid = #{userid,jdbcType=VARCHAR}
+  </select>
+  <sql id="Base_Column_List" >
+    id, roomType, createDate, roomMember, lastTime,password
+  </sql>
+  <sql id="Blob_Column_List" >
+    roomContent, roomTitle,roomNotice
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from chatrooms
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from chatrooms
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.jy.webchat.pojo.ChatRoomsWithBLOBs" >
+    insert into chatrooms (id, roomType, createDate, 
+      roomMember, lastTime, roomContent, password,
+      roomTitle,roomNotice)
+    values (#{id,jdbcType=INTEGER}, #{roomtype,jdbcType=INTEGER}, #{createdate,jdbcType=TIMESTAMP}, 
+      #{roommember,jdbcType=INTEGER}, #{lasttime,jdbcType=VARCHAR}, #{roomcontent,jdbcType=LONGVARCHAR}, #{password,jdbcType=VARCHAR},
+      #{roomtitle,jdbcType=LONGVARCHAR},#{roomnotice,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.jy.webchat.pojo.ChatRoomsWithBLOBs" >
+    insert into chatrooms
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="roomtype != null" >
+        roomType,
+      </if>
+      <if test="createdate != null" >
+        createDate,
+      </if>
+      <if test="roommember != null" >
+        roomMember,
+      </if>
+      <if test="lasttime != null" >
+        lastTime,
+      </if>
+      <if test="roomcontent != null" >
+        roomContent,
+      </if>
+      <if test="roomtitle != null" >
+        roomTitle,
+      </if>
+      <if test="roomnotice != null" >
+        roomNotice,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="roomtype != null" >
+        #{roomtype,jdbcType=INTEGER},
+      </if>
+      <if test="createdate != null" >
+        #{createdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="roommember != null" >
+        #{roommember,jdbcType=INTEGER},
+      </if>
+      <if test="lasttime != null" >
+        #{lasttime,jdbcType=VARCHAR},
+      </if>
+      <if test="roomcontent != null" >
+        #{roomcontent,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="roomtitle != null" >
+        #{roomtitle,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="roomnotice != null" >
+        #{roomnotice,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jy.webchat.pojo.ChatRoomsWithBLOBs" >
+    update chatrooms
+    <set >
+      <if test="roomtype != null" >
+        roomType = #{roomtype,jdbcType=INTEGER},
+      </if>
+      <if test="createdate != null" >
+        createDate = #{createdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="roommember != null" >
+        roomMember = #{roommember,jdbcType=INTEGER},
+      </if>
+      <if test="lasttime != null" >
+        lastTime = #{lasttime,jdbcType=VARCHAR},
+      </if>
+      <if test="roomcontent != null" >
+        roomContent = #{roomcontent,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="roomtitle != null" >
+        roomTitle = #{roomtitle,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="password != null" >
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="roomnotice != null" >
+        roomNotice = #{roomnotice,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.jy.webchat.pojo.ChatRoomsWithBLOBs" >
+    update chatrooms
+    set roomType = #{roomtype,jdbcType=INTEGER},
+      createDate = #{createdate,jdbcType=TIMESTAMP},
+      roomMember = #{roommember,jdbcType=INTEGER},
+      lastTime = #{lasttime,jdbcType=VARCHAR},
+      roomContent = #{roomcontent,jdbcType=LONGVARCHAR},
+      roomNotice = #{roomnotice,jdbcType=LONGVARCHAR},
+      roomTitle = #{roomtitle,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jy.webchat.pojo.ChatRooms" >
+    update chatrooms
+    set roomType = #{roomtype,jdbcType=INTEGER},
+      createDate = #{createdate,jdbcType=TIMESTAMP},
+      roomMember = #{roommember,jdbcType=INTEGER},
+      lastTime = #{lasttime,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

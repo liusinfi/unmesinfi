@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jy.webchat.dao.SysConfigMapper" >
+  <resultMap id="BaseResultMap" type="com.jy.webchat.pojo.SysConfig" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="sysHost" property="syshost" jdbcType="VARCHAR" />
+    <result column="sysLocate" property="syslocate" jdbcType="VARCHAR" />
+    <result column="lastTime" property="lasttime" jdbcType="VARCHAR" />
+    <result column="onlineconsult" property="onlineconsult" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.jy.webchat.pojo.SysConfig" extends="BaseResultMap" >
+    <result column="sysContent" property="syscontent" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, sysLocate, lastTime,sysHost,onlineconsult
+  </sql>
+  <sql id="Blob_Column_List" >
+    sysContent
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from sysconfig
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from sysconfig
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.jy.webchat.pojo.SysConfig" >
+    insert into sysconfig (id, sysLocate, lastTime, onlineconsult,
+      sysContent)
+    values (#{id,jdbcType=INTEGER}, #{syslocate,jdbcType=VARCHAR}, #{lasttime,jdbcType=VARCHAR}, #{onlineconsult,jdbcType=VARCHAR},
+      #{syscontent,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.jy.webchat.pojo.SysConfig" >
+    insert into sysconfig
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="syslocate != null" >
+        sysLocate,
+      </if>
+      <if test="lasttime != null" >
+        lastTime,
+      </if>
+      <if test="syscontent != null" >
+        sysContent,
+      </if>
+      <if test="onlineconsult != null" >
+        onlineconsult,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="syslocate != null" >
+        #{syslocate,jdbcType=VARCHAR},
+      </if>
+      <if test="lasttime != null" >
+        #{lasttime,jdbcType=VARCHAR},
+      </if>
+      <if test="syscontent != null" >
+        #{syscontent,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="onlineconsult != null" >
+        #{onlineconsult,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jy.webchat.pojo.SysConfig" >
+    update sysconfig
+    <set >
+      <if test="syslocate != null" >
+        sysLocate = #{syslocate,jdbcType=VARCHAR},
+      </if>
+      <if test="lasttime != null" >
+        lastTime = #{lasttime,jdbcType=VARCHAR},
+      </if>
+      <if test="syscontent != null" >
+        sysContent = #{syscontent,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="syshost != null" >
+        sysHost = #{syshost,jdbcType=VARCHAR},
+      </if>
+      <if test="onlineconsult != null" >
+        onlineconsult = #{onlineconsult,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.jy.webchat.pojo.SysConfig" >
+    update sysconfig
+    set sysLocate = #{syslocate,jdbcType=VARCHAR},onlineconsult = #{onlineconsult,jdbcType=VARCHAR},
+      lastTime = #{lasttime,jdbcType=VARCHAR},
+      sysContent = #{syscontent,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jy.webchat.pojo.SysConfig" >
+    update sysconfig
+    set sysLocate = #{syslocate,jdbcType=VARCHAR},
+      lastTime = #{lasttime,jdbcType=VARCHAR},onlineconsult = #{onlineconsult,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

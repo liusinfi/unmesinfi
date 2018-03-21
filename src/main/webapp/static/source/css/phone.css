@@ -1,0 +1,95 @@
+#YKSHOW {
+    position: absolute;
+    /* left: 5px; */
+    height: 70px;
+    z-index: 6200103;
+    width: 100%;
+    background: #ccc;
+    border-top: 1px solid #d8dae2;
+    border-bottom: 0;
+    padding-top: 3px;
+    display: none;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 3rem;
+    text-align: center;
+}
+.admin-menu1 {
+    position: fixed;
+    z-index: 999999;
+    bottom: 20px;
+    left: 20px;
+}
+.box_font {
+    position: absolute;
+    left: 5px;
+    height: 30px;
+    z-index: 6200103;
+    width: 90%;
+    background: #fff;
+    border-top: 1px solid #d8dae2;
+    border-bottom: 0;
+    padding-top: 3px;
+    display: none;
+    bottom: 70px;
+    border-radius: 10px;
+}
+.box_emote td {
+    padding: 0px;
+}
+.box_emote img {
+    height: 27px;
+}
+.box_emote {
+    position: absolute;
+    left: 5px;
+    z-index: 62001031;
+    width: 95%;
+    background: #fff;
+    border-top: 1px solid #d8dae2;
+    border-right: 1px solid #d8dae2;
+    border-bottom: 0;
+    padding-top: 3px;
+    display: none;
+    bottom: 70px;
+    border-radius: 10px;
+}
+.am-comment-flip .am-comment-main {
+    margin-right: 55px;
+}
+.am-comment-main {
+    margin-left: 55px;
+}
+.chat-toolbar a {
+    width: 40px;
+}
+.clse{
+    /* line-height: 1.4em;*/
+}
+.line_infl {
+    position: absolute;
+    left: 5px;
+    height: 30px;
+    z-index: 6200103;
+    width: 90%;
+    background: #fff;
+    border-top: 1px solid #d8dae2;
+    border-bottom: 0;
+    padding-top: 3px;
+    display: none;
+    bottom: 70px;
+    border-radius: 10px;
+}
+#touzhushan {
+    /* left: 5px; */
+    /* height: 50px; */
+    z-index: 6200103;
+    width: 100%;
+    background: #bfc6e84f;
+    border-top: 1px solid #d8dae2;
+    border-bottom: 0;
+    display: block;
+    font-weight: bold;
+    /* font-size: 3rem; */
+    text-align: center;
+}
