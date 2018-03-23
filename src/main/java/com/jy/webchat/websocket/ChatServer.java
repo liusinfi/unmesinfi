@@ -7,15 +7,12 @@ import com.jy.webchat.pojo.CVALUE;
 import com.jy.webchat.pojo.RoomMember;
 import com.jy.webchat.service.IChatRoomsService;
 import com.jy.webchat.service.IRoomMemberService;
-
-import org.apache.commons.lang.StringUtils;
 import org.springframework.web.context.ContextLoader;
 
 import javax.servlet.http.HttpSession;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
-
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,7 +26,7 @@ public class ChatServer {
     private HttpSession httpSession;    //request的session
     private String roomId;
     private static Map<String,CopyOnWriteArraySet<ChatServer>> roomsetMap = new ConcurrentHashMap<>();
-    private static Map<String,Set> onlineMap = new ConcurrentHashMap<>();
+    private static Map<String,ArrayList> onlineMap = new ConcurrentHashMap<>();
     private static Map routetab = new ConcurrentHashMap<>();  //用户名和websocket的session绑定的路由表
     public static Map cansendchange = new ConcurrentHashMap<>();  //禁言列表变动
     /*private static Map<String,String> temChatMap = new ConcurrentHashMap<>();*/
@@ -46,27 +43,20 @@ public class ChatServer {
         this.roomId = roomid;
         this.session = session;
         this.httpSession = (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
-        if(this.httpSession == null){
-            return;
-        }
         roomMemberService = (IRoomMemberService)ContextLoader.getCurrentWebApplicationContext().getBean("roomMemberService");
         redisParentDao = (RedisParentDao)ContextLoader.getCurrentWebApplicationContext().getBean("redisParentDao");
         chatRoomsService =  (IChatRoomsService)ContextLoader.getCurrentWebApplicationContext().getBean("chatRoomsService");
         this.userid=(String) httpSession.getAttribute("userid");    //获取当前用户
-        if(StringUtils.isEmpty(userid)){
-        	return;
-        }
         if(userid.indexOf("YKMODE")==0){
             isYK = true;
         }
         if(routetab.get(userid)!=null){
-            //return;
+            throw new Exception("已经存在连接");
         }
 
         RoomMember roomMember = roomMemberService.selectByPrimaryKey(userid,roomId);
         if(roomMember !=null && 1==roomMember.getBlacktype()){
-            //throw new Exception("已被踢出聊天室");
-        	return;
+            throw new Exception("已被踢出聊天室");
         }
         ReentrantLock lock = new ReentrantLock();
         lock.lock();
@@ -81,13 +71,13 @@ public class ChatServer {
             routetab.put(userid, session);   //将用户名和session绑定到路由表
             if(!isYK){//不是游客
                 if(onlineMap.get(roomId) ==null){
-                    Set set = new Set<String>();
-                    set.add(userid);
+                    ArrayList list = new ArrayList<>();
+                    list.add(userid);
                     onlineMap.put(roomId,list);
                 }else{
                     onlineMap.get(roomId).add(userid);
                 }
-                //redisParentDao.cacheSet("onuser"+roomId,userid);
+                redisParentDao.cacheSet("onuser"+roomId,userid);
                 cansendchange.put(roomId+userid,"1");//初始化加载一份，发第一条消息时候，去查询是否被禁言，之后有管理员禁言操作设置。
                 if(roomMember==null){
                     roomMember = new RoomMember();
@@ -95,10 +85,10 @@ public class ChatServer {
                     roomMember.setRoomid(Integer.valueOf(roomId));
                     roomMember.setBlacktype(0);
                     roomMemberService.insert(roomMember);
-                    /*redisParentDao.removeList(CVALUE.USER_VISITED+userid);
-                    redisParentDao.cacheListObj(CVALUE.USER_VISITED+userid,chatRoomsService.selectUserVisited(userid),-1);*/
+                    redisParentDao.removeList(CVALUE.USER_VISITED+userid);
+                    redisParentDao.cacheListObj(CVALUE.USER_VISITED+userid,chatRoomsService.selectUserVisited(userid),-1);
                     int count = roomMemberService.selectCountMember(Integer.valueOf(roomId));
-                    //redisParentDao.cacheValue("allnum"+roomid,String.valueOf(count),-1);
+                    redisParentDao.cacheValue("allnum"+roomid,String.valueOf(count),-1);
                 }
                 String message = getMessage("", "", onlineMap.get(roomId), userid,null);
                 broadcast(message);     //广播
@@ -131,7 +121,7 @@ public class ChatServer {
             }*/
             if(!isYK){
                 onlineMap.get(roomId).remove(userid);
-                //redisParentDao.removeSetMember("onuser"+roomId,userid);
+                redisParentDao.removeSetMember("onuser"+roomId,userid);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -149,7 +139,9 @@ public class ChatServer {
 
     @OnMessage
     public void onMessage(String _message) throws Exception {
-
+        if(redisParentDao.getListSize("room"+roomId)/100 > 3){
+            redisParentDao.trimList("room"+roomId,200,-1);
+        }
         if(routetab.get(userid) ==null){
             throw new Exception("连接关闭");
         }
@@ -186,11 +178,13 @@ public class ChatServer {
             singleSend(insteadMsg, (Session) routetab.get(userid));
         }else{
             if(message.get("to") == null || message.get("to").equals("")){      //如果to为空,则广播;如果不为空,则对指定的用户发送消息
-                broadcast(_message);
-                if(redisParentDao.getListSize("room"+roomId)/100 > 3){
-                    redisParentDao.trimList("room"+roomId,200,-1);
-                }
+                /*long messageSize = redisParentDao.getListSize("room"+roomId);
+                if(messageSize>200){
+                    redisParentDao.removeOneOfList("room"+roomId);
+                }*/
+
                 redisParentDao.cacheList("room"+roomId,_message);//聊天记录放在redis个小时有效
+                broadcast(_message);
             }else{
                 if(cansendchange.get(userid) !=null){
                     //更新session里面的usertype
@@ -202,7 +196,7 @@ public class ChatServer {
                     //判断是否有临时通话关系
                     String [] userlist = message.get("to").toString().split(",");
                     if(userlist.length>1){
-                        return;
+                        throw new Exception("被恶意攻击了");
                     }
                     Set admins = redisParentDao.getSet("adminuser");
                     if(!admins.contains(userlist[0])){
