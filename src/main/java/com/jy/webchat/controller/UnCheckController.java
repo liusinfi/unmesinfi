@@ -138,12 +138,12 @@ public class UnCheckController {
             userid = "YKMODE"+System.currentTimeMillis();
             request.getSession().setAttribute("userid",userid);
         }
-        if(ChatServer.checkExistSession(userid)){
-            view = new ModelAndView("index");
-            view.addObject(CVALUE.ERRORINFO, "您已经进入聊天室。退出其它客户端或退出浏览器重新登录！");
-            view.addObject("ChatRooms", qryRooms());
-            return view;
-        }
+//        if(ChatServer.checkExistSession(userid)){
+//            view = new ModelAndView("index");
+//            view.addObject(CVALUE.ERRORINFO, "您已经进入聊天室。退出其它客户端或退出浏览器重新登录！");
+//            view.addObject("ChatRooms", qryRooms());
+//            return view;
+//        }
         if(isLogin(request)){
             User user = userService.selectUserByUserid(userid);
             view.addObject("user", user);
